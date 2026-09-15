@@ -1,7 +1,7 @@
 # BA1 - JDBC: de la connexió als PreparedStatements
 
 Aquest document explica, pas a pas, el projecte `ba1_jdbc` i quins conceptes es volen
-treballar amb cada classe. L'ordre de lectura recomanat per a l'alumnat és:
+treballar amb cada classe. L'ordre de lectura recomanat és:
 
 1. `pom.xml` (el connector)
 2. `dbConn.java` (connexió + SELECT bàsic)
@@ -30,7 +30,7 @@ Dades de connexió que fa servir el projecte:
 - Usuari: `root`
 - Contrasenya: `super3`
 
-Punt a comentar a classe: tenir les credencials escrites dins del codi és còmode per a un
+> Recordeu que: tenir les credencials escrites dins del codi és còmode per a un
 exemple, però a la vida real van en un fitxer de configuració (`.properties`) o en variables
 d'entorn, fora del repositori.
 
@@ -81,7 +81,7 @@ Class.forName("com.mysql.cj.jdbc.Driver");
 
 Carrega la classe del driver i, en carregar-se, aquesta es registra al `DriverManager`.
 
-Matís que val la pena explicar: **des de JDBC 4.0 aquesta línia ja no és necessària**. El driver
+> Matís: **des de JDBC 4.0 aquesta línia ja no és necessària**. El driver
 es registra automàticament (mecanisme `ServiceLoader`, fitxer `META-INF/services`). Es manté
 perquè surt a molts manuals i perquè obliga a capturar `ClassNotFoundException`, que és una
 excepció diferent de les de base de dades. A `AlterTableErrors` i a `PreparedStatements` ja no hi és.
@@ -138,7 +138,7 @@ statement.close();
 connection.close();
 ```
 
-En ordre invers a la creació. **Aquest és el punt feble de la classe**: si salta una excepció
+En ordre invers a la creació. **Aquest és el punt feble de l'explicació inicial**: si salta una excepció
 abans dels `close()`, els recursos queden oberts. Serveix per introduir la millora que ve
 després (try-with-resources).
 
@@ -184,7 +184,7 @@ double size = resultSet.getDouble("size_sq_meters");
 boolean hasOven = resultSet.getBoolean("has_oven");
 ```
 
-Taula de correspondències que convé que tinguin a mà:
+Taula de correspondències que convé que tingueu a mà:
 
 | Tipus MySQL | Mètode del ResultSet | Tipus Java |
 |---|---|---|
@@ -195,7 +195,7 @@ Taula de correspondències que convé que tinguin a mà:
 | `DATE` | `getDate` | `java.sql.Date` |
 | `DATETIME` | `getTimestamp` | `java.sql.Timestamp` |
 
-Observació: aquest exemple insereix els mateixos registres cada vegada que s'executa, de manera
+> Observació: aquest exemple insereix els mateixos registres cada vegada que s'executa, de manera
 que la taula es va omplint de duplicats. És intencionat, perquè el següent exemple hi posa una
 restricció `UNIQUE` i provoca l'error.
 
@@ -219,7 +219,7 @@ tant si acaba bé com si salta una excepció. Funciona perquè `Connection`, `St
 `ResultSet` implementen `AutoCloseable`.
 
 Comparació directa amb `dbConn`: 3 línies de `close()` que es poden oblidar, contra 0.
-A partir d'aquí, els alumnes haurien de fer-ho sempre així.
+A partir d'aquí, **haurieu de fer-ho sempre així**.
 
 ### 4.2. Jerarquia d'excepcions: de la més concreta a la més general
 
@@ -255,7 +255,7 @@ localment i el programa continua:
 System.out.println("Cuines a la taula: " + comptaCuines(statement));
 ```
 
-Decisió de disseny a discutir: quan volem que un error avorti l'operació sencera i quan volem
+> Decisió de disseny: quan volem que un error avorti l'operació sencera i quan volem
 capturar-lo, informar l'usuari i seguir endavant.
 
 ### 4.4. `throws` en lloc de `try`
@@ -322,7 +322,7 @@ número però deixa el salt de línia al buffer, i cal consumir-lo abans del seg
 - `executeQuery()` - per a `SELECT`, retorna `ResultSet`. **Sense paràmetres**, perquè la
   consulta ja està dins del `PreparedStatement`.
 
-### 5.4. Dos errors a comentar expressament a classe
+### 5.4. Dos errors a comentar expressament
 
 Aquest fitxer conté dos punts millorables que són molt bon material de debat:
 
@@ -387,8 +387,6 @@ prepSt.setString(1, nom);
 La idea central: el driver envia l'esquelet de la consulta i els valors **per separat**. El text de
 l'usuari mai s'interpreta com a codi SQL, sempre com a dada. Amb la mateixa entrada maliciosa, la
 consulta busca literalment una cuina que es digui `x' OR '1'='1` i no en troba cap.
-
-Executar els dos mètodes seguits i comparar la sortida per pantalla és la millor manera d'ensenyar-ho.
 
 ### 6.2. Dates: de `java.time` a `java.sql`
 
@@ -470,19 +468,6 @@ concatenar-hi dades, no.
 
 ---
 
-## 7. Resum: què han de saber fer després
-
-1. Afegir el connector MySQL al `pom.xml` i entendre què fa Maven.
-2. Obrir una connexió amb `DriverManager.getConnection` i saber llegir la URL JDBC.
-3. Distingir `Connection`, `Statement`, `PreparedStatement` i `ResultSet`.
-4. Triar entre `executeQuery` i `executeUpdate` segons el tipus de sentència.
-5. Recórrer un `ResultSet` amb `while (rs.next())` i llegir columnes pel seu nom.
-6. Tancar recursos sempre amb try-with-resources.
-7. Capturar `SQLException` i les seves subclasses en l'ordre correcte, i aprofitar
-   `getErrorCode()` i `getSQLState()`.
-8. Decidir entre capturar l'excepció o propagar-la amb `throws`.
-9. Fer servir `PreparedStatement` amb `?` per a **qualsevol** dada que vingui de fora.
-10. Explicar amb un exemple què és una injecció SQL i per què els paràmetres la impedeixen.
 
 ## 8. Errors més freqüents de l'alumnat
 
