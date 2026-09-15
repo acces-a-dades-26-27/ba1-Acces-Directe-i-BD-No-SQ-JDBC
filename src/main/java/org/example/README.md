@@ -469,7 +469,7 @@ concatenar-hi dades, no.
 ---
 
 
-## 8. Errors més freqüents de l'alumnat
+## 7. Errors més freqüents
 
 | Error | Símptoma |
 |---|---|
