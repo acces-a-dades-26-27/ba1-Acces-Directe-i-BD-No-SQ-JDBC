@@ -59,10 +59,10 @@ public class PreparedStatements {
 						+ ", Nombre d'armaris: " + cabinets + ", Material del terra: " + floor);
 			}
 
-			// Tancar ResultSet, Statement i la connexió
+			// Tancar ResultSet, Statement. La connexió es tanca automàticament.
 			resultSet.close();
 			prepStatement.close();
-			connection.close();
+
 
 		} catch (Exception e) {
 			
